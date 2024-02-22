@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# This bash script uses the current working directory to create a simple
+# script to run the lpilMagicRunner command anywhere in a user's
+# workspace.
+
+##########################################################################
+
+recordcmdScript=$(pwd)/.venv/bin/lpilMagicRunner
+
+cat << CMD_SCRIPT > $HOME/.local/bin/lpilMagicRunner
+#!/bin/sh
+
+# This shell script was created by the pygments-tools tool
+#       './scripts/installEditableLpilMagicRunnerCommand'
+# script.
+
+exec $recordcmdScript \$@
+CMD_SCRIPT
+
+chmod a+x $HOME/.local/bin/lpilMagicRunner
+
+##########################################################################
+
+echo ""
+echo "Editable lpilMagicRunner command has been created"
+echo ""
