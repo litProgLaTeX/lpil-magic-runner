@@ -387,6 +387,24 @@ def runMetafun(config, texFilePath, codeType) :
     os.chdir(oldDir)
     return(result)
 
+  pdftocairoCmd = assembleCmd([
+      'pdftocairo',
+      '-svg',
+      '{jobName}.pdf'
+    ], { 'jobName' : jobName })
+
+  print("-----------------------------------------------------------------")
+  print(f"outputDir: {os.getcwd()}")
+  print("pdftocairo (SVG) cmd:")
+  print(pdftocairoCmd)
+  print("-----------------------------------------------------------------")
+  sys.stdout.flush()
+  result = os.system(pdftocairoCmd)
+  if result != 0 :
+    print(f"ERROR: the pdftocairo (SVG) command returned: [{result}]")
+    os.chdir(oldDir)
+    return(result)
+
   os.chdir(oldDir)
 
 #################################################################
