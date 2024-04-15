@@ -242,7 +242,7 @@ def runCMScan(config, cmScanFilePath, codeType) :
 #################################################################
 # RUN Pygmentize
 
-def runPygmentize(config, pygmentFilePath, codeType) :
+def runPygmentize(config, latexPygmentFilePath, codeType) :
   if not os.path.exists(latexPygmentFilePath+'.out') :
     print(f"Attempting to Pygmentize [{latexPygmentFilePath}]")
     print("  ... but could not find file!")
