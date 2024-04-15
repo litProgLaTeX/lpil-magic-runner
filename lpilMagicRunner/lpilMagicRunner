@@ -243,8 +243,8 @@ def runCMScan(config, cmScanFilePath, codeType) :
 # RUN Pygmentize
 
 def runPygmentize(config, pygmentFilePath, codeType) :
-  if not os.path.exists(pygmentFilePath+'.out') :
-    print(f"Attempting to Pygmentize [{pygmentFilePath}]")
+  if not os.path.exists(latexPygmentFilePath+'.out') :
+    print(f"Attempting to Pygmentize [{latexPygmentFilePath}]")
     print("  ... but could not find file!")
     return
 
@@ -257,11 +257,12 @@ def runPygmentize(config, pygmentFilePath, codeType) :
   # we use the '|' since Pygments uses the ':' for loading specific Lexers from
   # files by separating the path from the class name of the Lexer using the ':'.
   pygmentConfig = config['pygments'][codeType]
-  pOpts = None
-  if -1 < pygmentConfig.find('|') :
-    pLexer, pOpts = pygmentConfig.split('|')
-  else :
-    pLexer = pygmentConfig
+  parts = pygmentConfig.split('|')
+  if 0 < len(parts) : pLexer = parts.pop(0)
+  latexOpts = None
+  if 0 < len(parts) : latexOpts = parts.pop(0)
+  htmlOpts = None
+  if 0 < len(parts) : htmlOpts = parts.pop(0)
 
   # Now, IF the Pygments lexer is a path/class-name
   # expand the user '~' (if there is any)
@@ -280,10 +281,11 @@ def runPygmentize(config, pygmentFilePath, codeType) :
   pygmentsCmd = [
     'lpilPygmentize',
     pLexer,
-    pygmentFilePath+'.out',
-    pygmentFilePath
+    'latex',
+    latexPygmentFilePath+'.out',
+    latexPygmentFilePath
   ]
-  if pOpts : pygmentsCmd.append(pOpts)
+  if latexOpts : pygmentsCmd.append(latexOpts)
   pygmentsCmd = " ".join(pygmentsCmd)
 
   print("-----------------------------------------------------------------")
@@ -293,7 +295,28 @@ def runPygmentize(config, pygmentFilePath, codeType) :
   sys.stdout.flush()
   result = os.system(pygmentsCmd)
   if result != 0 :
-    print(f"ERROR: the pygmentize command returned: [{result}]")
+    print(f"ERROR: the pygmentize (latex) command returned: [{result}]")
+    return(result)
+
+  htmlPygmentFilePath = latexPygmentFilePath.removesuffix('.tex')+'.html'
+  pygmentsCmd = [
+    'lpilPygmentize',
+    pLexer,
+    'html',
+    latexPygmentFilePath+'.out',
+    htmlPygmentFilePath
+  ]
+  if htmlOpts : pygmentsCmd.append(htmlOpts)
+  pygmentsCmd = " ".join(pygmentsCmd)
+
+  print("-----------------------------------------------------------------")
+  print("lpilPygmentize cmd:")
+  print(pygmentsCmd)
+  print("-----------------------------------------------------------------")
+  sys.stdout.flush()
+  result = os.system(pygmentsCmd)
+  if result != 0 :
+    print(f"ERROR: the pygmentize (html) command returned: [{result}]")
     return(result)
 
 #################################################################
