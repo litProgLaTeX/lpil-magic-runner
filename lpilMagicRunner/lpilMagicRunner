@@ -226,6 +226,7 @@ reLoadDepsJson(config)
 # define how to run the known commands
 
 def assembleCmd(progArgs, config) :
+  print(yaml.dump(progArgs))
   return " ".join(progArgs).format_map(config)
 
 #################################################################
@@ -495,9 +496,9 @@ def fileChanged(checkFilePath, config) :
   #print("  ... contents differ")
   return True
 
-def computeChapterNumber(config, jobName)
+def computeChapterNumber(config, jobName) :
   collPath = os.path.join(
-    os.path.expanduser(~),
+    os.path.expanduser("~"),
     '.config', 'lpil',
     config['collection']+'.yaml'
   )
@@ -510,7 +511,7 @@ def computeChapterNumber(config, jobName)
   except Exception as err :
     print(repr(err))
 
-  chapterNum = 1
+  chapterNum = 0
   for aDoc in docOrder :
     if aDoc == jobName : break
     chapterNum += 1
@@ -535,7 +536,7 @@ def runLuaLaTeX(config, jobName, codeType) :
     lualatexCmd.append('--output-directory={outputDir}')
   if config['collection'] :
     chapterNumber = computeChapterNumber(config, jobName)
-    lualatexCmd.append("\\\\def\\\\lpilChapterNumber{"+chapterNumber+"}")
+    lualatexCmd.append("\\\\def\\\\lpilChapterNumber{{"+str(chapterNumber)+"}}")
   if config['preamble'] :
     lualatexCmd.append("\\\\input{{{preamble}}}")
   lualatexCmd.append("\\\\input{{{texFilePath}}}")
