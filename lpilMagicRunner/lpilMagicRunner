@@ -533,11 +533,11 @@ def runLuaLaTeX(config, jobName, codeType) :
   ]
   if config['outputDir'] :
     lualatexCmd.append('--output-directory={outputDir}')
-  if config['preamble'] :
-    lualatexCmd.append("\\\\input{{{preamble}}}")
   if config['collection'] :
     chapterNumber = computeChapterNumber(config, jobName)
     lualatexCmd.append("\\\\def\\\\lpilChapterNumber{"+chapterNumber+"}")
+  if config['preamble'] :
+    lualatexCmd.append("\\\\input{{{preamble}}}")
   lualatexCmd.append("\\\\input{{{texFilePath}}}")
   if config['postamble'] :
     lualatexCmd.append("\\\\input{{{postamble}}}")
