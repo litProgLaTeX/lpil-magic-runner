@@ -44,6 +44,7 @@
 #    - which program { lualatex or metafun(context) } to use
 #    - which preamble to (pre) load
 #    - which postamble to (post) load
+#    - which document collection of which this document is a part
 
 # 2. if needed, re-run the command until the associated "check" file has
 #    "stabilized" (this technique has been inspired by
@@ -79,6 +80,7 @@ def usage() :
     - `% !TEX program = <<aProgram>>`
     - `% !LPiL preamble = <<aPreambleFile>>`
     - `% !LPiL postamble = <<aPostambleFile>>`
+    - `% !LPiL collection = <<aCollectionName>>`
 
   The `program` magic comment specifies which "program" to use to typeset the
   given document. This "program" must be one which the `lpilMagicRunner` script
@@ -97,6 +99,10 @@ def usage() :
   the LPiL Magic Runner to fabricate complete LaTeX documents out of component
   parts. This allows small parts of a very much larger document to be developed
   more quickly in separation, using for example VSCode's LaTeX-Workshop.
+
+  The `collection` magic comment specifies the collection of documents of
+  which this document is a part. This is used to compute the chapter number
+  for this document.
 
   options:
     -h, --help   This help text
@@ -140,6 +146,7 @@ print(f"Current Working Dir: [{config['curWorkingDir']}]")
 config['program']       = "lualatex"
 config['preamble']      = None
 config['postamble']     = None
+config['collection']    = None
 
 # read the beginning of the file looking for TeX-Magic comments
 with open(config['texFilePath']) as tf :
@@ -160,6 +167,8 @@ with open(config['texFilePath']) as tf :
         config['preamble'] = aValue
       if -1 < aKey.find('postamble') :
         config['postamble'] = aValue
+      if -1 < aKey.find('collection') :
+        config['collection'] = aValue
     if -1 < aKey.find('!tex') and -1 < aKey.find('program') :
       config['program'] = aValue
 
@@ -486,6 +495,28 @@ def fileChanged(checkFilePath, config) :
   #print("  ... contents differ")
   return True
 
+def computeChapterNumber(config, jobName)
+  collPath = os.path.join(
+    os.path.expanduser(~),
+    '.config', 'lpil',
+    config['collection']+'.yaml'
+  )
+  docOrder = []
+  try :
+    with open(collPath) as collFile :
+      collDict = yaml.safe_load(collFile.read())
+      if 'docOrder' in collDict :
+        docOrder = collDict['docOrder']
+  except Exception as err :
+    print(repr(err))
+
+  chapterNum = 1
+  for aDoc in docOrder :
+    if aDoc == jobName : break
+    chapterNum += 1
+
+  return chapterNum
+
 def runLuaLaTeX(config, jobName, codeType) :
   if not jobName :
     print("running LuaLaTeX from the command line")
@@ -504,6 +535,9 @@ def runLuaLaTeX(config, jobName, codeType) :
     lualatexCmd.append('--output-directory={outputDir}')
   if config['preamble'] :
     lualatexCmd.append("\\\\input{{{preamble}}}")
+  if config['collection'] :
+    chapterNumber = computeChapterNumber(config, jobName)
+    lualatexCmd.append("\\\\def\\\\lpilChapterNumber{"+chapterNumber+"}")
   lualatexCmd.append("\\\\input{{{texFilePath}}}")
   if config['postamble'] :
     lualatexCmd.append("\\\\input{{{postamble}}}")
