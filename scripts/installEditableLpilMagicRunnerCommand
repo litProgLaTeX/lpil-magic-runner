@@ -6,19 +6,26 @@
 
 ##########################################################################
 
-recordcmdScript=$(pwd)/.venv/bin/lpilMagicRunner
+#recordcmdScript=$(pwd)/.venv/bin/lpilMagicRunner
 
-cat << CMD_SCRIPT > $HOME/.local/bin/lpilMagicRunner
-#!/bin/sh
+#cat << CMD_SCRIPT > $HOME/.local/bin/lpilMagicRunner
+##!/bin/sh
+#
+## This shell script was created by the pygments-tools tool
+##       './scripts/installEditableLpilMagicRunnerCommand'
+## script.
+#
+#exec $recordcmdScript \$@
+#CMD_SCRIPT
 
-# This shell script was created by the pygments-tools tool
-#       './scripts/installEditableLpilMagicRunnerCommand'
-# script.
+#chmod a+x $HOME/.local/bin/lpilMagicRunner
 
-exec $recordcmdScript \$@
-CMD_SCRIPT
 
-chmod a+x $HOME/.local/bin/lpilMagicRunner
+lmrScript=$(pwd)/lpilMagicRunner/lpilMagicRunner
+
+cd $HOME/.local/bin
+
+ln -fs $lmrScript .
 
 ##########################################################################
 
